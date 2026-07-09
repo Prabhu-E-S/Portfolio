@@ -1,0 +1,205 @@
+/* -------------------------------------------------------------
+ * AURA.CORE // STYLESHEET
+ * ------------------------------------------------------------- */
+
+/* Custom Reset */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --bg-dark: #020205;
+    --text-main: #f3f4f6;
+    --text-sub: #9ca3af;
+    --neon-cyan: #00f0ff;
+    --neon-blue: #3b82f6;
+    --font-tech: 'Space Grotesk', sans-serif;
+    --font-heading: 'Syne', sans-serif;
+    --font-body: 'Inter', sans-serif;
+}
+
+html,
+body {
+    background-color: #0b0b0f;
+    color: var(--text-main);
+    font-family: var(--font-body);
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-dark);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--neon-cyan);
+}
+
+/* -------------------------------------------------------------
+ * PRELOADER
+ * ------------------------------------------------------------- */
+.preloader {
+    align-items: center;
+    background-color: var(--bg-dark);
+    display: flex;
+    height: 100vh;
+    justify-content: center;
+    left: 0;
+    position: fixed;
+    top: 0;
+    width: 100vw;
+    z-index: 9999;
+    transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.8s;
+}
+
+.preloader-content {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+}
+
+.glow-ring {
+    animation: ring-pulse 2s infinite ease-in-out;
+    border: 2px solid rgba(0, 240, 255, 0.15);
+    border-radius: 50%;
+    box-shadow: 0 0 30px rgba(0, 240, 255, 0.05);
+    height: 100px;
+    margin-bottom: 24px;
+    position: relative;
+    width: 100px;
+}
+
+.orbital-dot {
+    animation: orb-spin 3s infinite linear;
+    background: var(--neon-cyan);
+    border-radius: 50%;
+    box-shadow: 0 0 15px var(--neon-cyan);
+    height: 8px;
+    left: calc(50% - 4px);
+    position: absolute;
+    top: -4px;
+    width: 8px;
+}
+
+.preloader-title {
+    color: var(--text-main);
+    font-family: var(--font-heading);
+    font-size: 1.75rem;
+    font-weight: 800;
+    letter-spacing: 4px;
+}
+
+.preloader-subtitle {
+    color: var(--text-sub);
+    font-family: var(--font-tech);
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+    margin-top: 6px;
+    opacity: 0.8;
+}
+
+.progress-bar-container {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+    height: 3px;
+    margin-top: 24px;
+    overflow: hidden;
+    width: 200px;
+}
+
+.progress-bar {
+    background: linear-gradient(90deg, var(--neon-blue), var(--neon-cyan));
+    box-shadow: 0 0 10px var(--neon-cyan);
+    height: 100%;
+    width: 0%;
+    transition: width 0.1s ease-out;
+}
+
+.loader-percent {
+    color: var(--neon-cyan);
+    font-family: var(--font-tech);
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-top: 10px;
+}
+
+@keyframes ring-pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+
+    50% {
+        transform: scale(1.05);
+        opacity: 1;
+        box-shadow: 0 0 45px rgba(0, 240, 255, 0.15);
+    }
+}
+
+@keyframes orb-spin {
+    100% {
+        transform: rotate(360deg);
+        transform-origin: 4px 54px;
+    }
+}
+
+/* -------------------------------------------------------------
+ * BACKGROUND CANVAS AND PINNING
+ * ------------------------------------------------------------- */
+#scroll-animation-section {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    background-color: #020205;
+}
+
+.canvas-container {
+    height: 100vh;
+    left: 0;
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: 0;
+}
+
+/* Vignette overlay */
+.canvas-container::after {
+    background: radial-gradient(circle at center, transparent 30%, rgba(2, 2, 5, 0.85) 90%),
+        linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+        radial-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 0);
+    background-size: 100% 100%, 100% 4px, 20px 20px;
+    content: "";
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    pointer-events: none;
+}
+
+#animation-canvas {
+    display: block;
+    height: 100%;
+    object-fit: cover;
+    width: 100%;
+}
