@@ -217,7 +217,7 @@ function initScrollTimeline() {
     });
 
     // Track active navigation links based on current scroll position
-    const navSections = ['scroll-animation-section', 'projects', 'experience', 'about'];
+    const navSections = ['scroll-animation-section', 'projects', 'experience', 'skills', 'about'];
     navSections.forEach((id) => {
         ScrollTrigger.create({
             trigger: `#${id}`,
