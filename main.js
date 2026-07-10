@@ -738,7 +738,7 @@ function initPCBBg() {
     generateAmbientParticles();
 
     // Spawn starting pulses
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 12; i++) {
         spawnPulse();
     }
 
@@ -809,7 +809,7 @@ function initPCBBg() {
             // If trace disappeared or segment index invalid
             if (!trace || pulse.segmentIndex >= trace.points.length - 1) {
                 activePulses.splice(i, 1);
-                if (activePulses.length < 8) spawnPulse();
+                if (activePulses.length < 12) spawnPulse();
                 continue;
             }
 
@@ -901,13 +901,13 @@ function initPCBBg() {
                 // If path completely finished
                 if (pulse.segmentIndex >= trace.points.length - 1) {
                     activePulses.splice(i, 1);
-                    if (activePulses.length < 8) spawnPulse();
+                    if (activePulses.length < 12) spawnPulse();
                 }
             }
         }
 
         // Spawning natural pulses over time
-        if (activePulses.length < 8 && Math.random() < 0.008) {
+        if (activePulses.length < 12 && Math.random() < 0.008) {
             spawnPulse();
         }
 
