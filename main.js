@@ -12,6 +12,58 @@ const CONFIG = {
     framePath: (index) => `/Frames/ezgif-frame-${String(index).padStart(3, '0')}.jpg`
 };
 
+// Projects Data Schema for Hover Slideshows and details Popup modals
+const PROJECTS_DATA = {
+    "physical-reporting": {
+        title: "NITC Token System",
+        subtitle: "AI/ML Model Optimization",
+        description: "A full-stack admission management platform that enables online slot booking, document verification, live queue tracking, role-based admin workflows, secure authentication, and automated token management for a seamless campus reporting experience.",
+        explanation: "Developed a full-stack web application to digitize and streamline the physical admission reporting process at NIT Calicut. The system enables students to book reporting slots, upload required documents, track live queue status, and download their final admission slip. It also provides role-based admin dashboards for multi-stage verification, queue management, late reporting handling, secure authentication, and automated token generation, significantly improving the efficiency of the on-campus admission workflow.",
+        images: [
+            "/images/Project%201/1.png"
+        ],
+        githubUrl: "https://github.com/Prabhu-E-S/NITC-Physical-Reporting",
+        tags: ["HTML", "JavaScript", "SQLite", "Python", "FlaskAPI"]
+    },
+    "exoplanet": {
+        title: "Exoplanet Detection ML",
+        subtitle: "AI-powered Exoplanet Detection & Classification",
+        description: "Built an intelligent pipeline for analyzing NASA TESS light curves using Box Least Squares (BLS) and XGBoost. The system automatically detects transit signals, extracts astrophysical parameters, classifies candidates, and generates confidence-aware scientific reports with interactive visualizations.",
+        explanation: "Developed an end-to-end AI-assisted pipeline for detecting and classifying exoplanet transit signals from NASA TESS light curves. The system processes raw FITS files, applies Box Least Squares (BLS) to identify periodic transits, extracts astrophysical features, retrieves stellar metadata from the TESS Input Catalog, and classifies signals using an XGBoost model trained on NASA TOI datasets. It generates scientifically interpretable outputs including orbital period, transit depth, transit duration, signal-to-noise ratio, confidence scores, and interactive visualizations, providing an automated workflow for exoplanet candidate analysis.",
+        images: [
+            "/images/Project%202/2.png"
+        ],
+        githubUrl: "https://github.com/Prabhu-E-S/Exoplanet-Detection",
+        tags: ["Python", "XGBoost", "Scikit-Learn", "Lightkurve", "NASA-MAST", "Matplotlib"]
+    },
+    "carbon-wise": {
+        title: "AI-Powered Carbon Footprint Awareness Platform",
+        subtitle: "Carbon Reducing Tracker",
+        description: "Track your carbon footprint, complete eco challenges, and receive AI-powered sustainability guidance.",
+        explanation: "Developed CarbonWise AI, a full-stack web application that helps users track, analyze, and reduce their carbon footprint through AI-driven insights. The platform enables users to log daily activities, calculate CO₂ emissions, visualize environmental impact with interactive dashboards, participate in sustainability challenges, and receive personalized recommendations from an AI sustainability coach. Built with Next.js 15, TypeScript, Tailwind CSS, Prisma, SQLite, NextAuth, and OpenAI API, the application features secure authentication, real-time analytics, leaderboards, and responsive UI, making sustainable living engaging and data-driven.",
+        images: [
+            "/images/Project%203/3.png"
+        ],
+        githubUrl: "https://github.com/Prabhu-E-S/Carbon-FootPrint",
+        tags: ["Next.js 15", "TailwindCSS", "TypeScript", "SQLite"]
+    },
+    "robo-arm": {
+        title: "Robotic Manipulator Simulation with Kinematics & Trajectory Planning",
+        subtitle: "3-Dof Robo Arm",
+        description: "Track your carbon footprint, complete eco challenges, and receive AI-powered sustainability guidance.",
+        explanation: "Developed a 3-DOF robotic manipulator simulation as part of a robotics internship under BSERC (in collaboration with ISRO). The manipulator was virtually modeled in MATLAB Simulink (Simscape Multibody), while Python was used to implement Denavit–Hartenberg (DH) based Forward and Inverse Kinematics. A numerical Jacobian-based inverse kinematics solver achieved sub-millimeter end-effector accuracy (~0.13 mm). The project also included a pick-and-place simulation using cubic trajectory planning, producing smooth joint motion and 3D trajectory visualization. This project strengthened my understanding of robotic kinematics, trajectory generation, and simulation-driven robotic control.",
+        images: [
+            "/images/Project%204/1.jpg"
+        ],
+        githubUrl: "https://github.com/Prabhu-E-S/Robotic-Manipulator",
+        tags: ["MATLAB Simulink", "Simscape Multibody", "Python", "Forward Kinematics", "Forward Kinematics"]
+    }
+};
+
+// Global Interval State tracking
+let cardHoverIntervals = {};
+let modalSlideshowInterval = null;
+
 // Application State
 const state = {
     loadedFramesCount: 0,
@@ -190,8 +242,8 @@ function initInteractivity() {
         });
     }
 
-    // Set interactive hover parallax to project cards
-    document.querySelectorAll('.glass-panel').forEach((card) => {
+    // Set interactive hover parallax to project cards only (excluding modals)
+    document.querySelectorAll('[data-project-id]').forEach((card) => {
         card.addEventListener('mousemove', (e) => {
             const rect = card.getBoundingClientRect();
             const x = e.clientX - rect.left - rect.width / 2;
@@ -208,7 +260,209 @@ function initInteractivity() {
             card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px)';
         });
     });
+
+    // Initialize Hover slideshows
+    initHoverSlideshows();
+
+    // Initialize Modal popup window integration
+    initProjectModal();
+}
+
+// 6. Project Cards Hover Slideshow (0.3s cycle)
+function initHoverSlideshows() {
+    document.querySelectorAll('[data-project-id]').forEach((card) => {
+        const id = card.getAttribute('data-project-id');
+        const project = PROJECTS_DATA[id];
+        if (!project || !project.images || project.images.length === 0) return;
+
+        const img = card.querySelector('.project-card-img');
+        if (!img) return;
+
+        let index = 0;
+
+        card.addEventListener('mouseenter', () => {
+            // Start rotating every 0.3s
+            if (cardHoverIntervals[id]) clearInterval(cardHoverIntervals[id]);
+            cardHoverIntervals[id] = setInterval(() => {
+                index = (index + 1) % project.images.length;
+                img.src = project.images[index];
+            }, 300);
+        });
+
+        card.addEventListener('mouseleave', () => {
+            // Stop cycling and reset representation to original thumbnail
+            if (cardHoverIntervals[id]) {
+                clearInterval(cardHoverIntervals[id]);
+                delete cardHoverIntervals[id];
+            }
+            index = 0;
+            img.src = project.images[0];
+        });
+    });
+}
+
+// 7. Project Details Popup Modal (0.5s slide cycle on left panel)
+function initProjectModal() {
+    const modal = document.getElementById('project-modal');
+    const closeBtn = document.getElementById('modal-close');
+
+    console.log("initProjectModal called. modal:", modal, "closeBtn:", closeBtn);
+    if (!modal || !closeBtn) {
+        console.warn("initProjectModal aborted: elements not found.");
+        return;
+    }
+
+    // Open handler
+    document.querySelectorAll('[data-project-id]').forEach((card) => {
+        const id = card.getAttribute('data-project-id');
+        console.log("Registering click for project card ID:", id);
+
+        card.addEventListener('click', (e) => {
+            console.log("Project card clicked. ID:", id, "Target:", e.target);
+
+            // If click targeted the view repo link, let it behave normally.
+            if (e.target.closest('a')) {
+                console.log("Clicked inside a link, ignoring modal open");
+                return;
+            }
+
+            try {
+                const project = PROJECTS_DATA[id];
+                console.log("Project card data:", project);
+                if (!project) return;
+
+                // Stop hover cycle on card if active to avoid glitches
+                if (cardHoverIntervals[id]) {
+                    clearInterval(cardHoverIntervals[id]);
+                    delete cardHoverIntervals[id];
+                }
+
+                // Fill Text Details
+                const titleEl = document.getElementById('modal-project-title');
+                const subtitleEl = document.getElementById('modal-project-subtitle');
+                const explanationEl = document.getElementById('modal-project-explanation');
+
+                if (titleEl) titleEl.innerText = project.title;
+                if (subtitleEl) subtitleEl.innerText = project.subtitle;
+                if (explanationEl) explanationEl.innerText = project.explanation;
+
+                // Set github url
+                const githubBtn = document.getElementById('modal-github-btn');
+                if (githubBtn) githubBtn.href = project.githubUrl;
+
+                // Render tags
+                const tagsContainer = document.getElementById('modal-project-tags');
+                if (tagsContainer) {
+                    tagsContainer.innerHTML = '';
+                    project.tags.forEach(tag => {
+                        const tagSpan = document.createElement('span');
+                        tagSpan.className = "text-xs font-label-mono text-tertiary bg-tertiary/10 px-2.5 py-1 rounded-full border border-tertiary/20";
+                        tagSpan.innerText = tag;
+                        tagsContainer.appendChild(tagSpan);
+                    });
+                }
+
+                // Set initial slideshow image
+                const modalImg = document.getElementById('modal-slideshow-img');
+                if (modalImg) modalImg.src = project.images[0];
+
+                // Render dot indicators
+                const dotsContainer = document.getElementById('modal-slideshow-dots');
+                if (dotsContainer) {
+                    dotsContainer.innerHTML = '';
+                    project.images.forEach((_, imgIdx) => {
+                        const dot = document.createElement('div');
+                        dot.className = `modal-dot w-1.5 h-1.5 rounded-full ${imgIdx === 0 ? 'bg-primary' : 'bg-white/30'}`;
+                        dotsContainer.appendChild(dot);
+                    });
+                }
+
+                // Start 0.5s slideshow cycle on the left side of the modal
+                let modalImgIdx = 0;
+                if (modalSlideshowInterval) clearInterval(modalSlideshowInterval);
+
+                modalSlideshowInterval = setInterval(() => {
+                    modalImgIdx = (modalImgIdx + 1) % project.images.length;
+
+                    // Opacity crossfade
+                    if (modalImg) {
+                        modalImg.style.opacity = '0';
+                        setTimeout(() => {
+                            modalImg.src = project.images[modalImgIdx];
+                            modalImg.style.opacity = '1';
+
+                            // Highlight active dot marker
+                            if (dotsContainer) {
+                                const dots = dotsContainer.querySelectorAll('.modal-dot');
+                                dots.forEach((dot, dotIdx) => {
+                                    if (dotIdx === modalImgIdx) {
+                                        dot.className = "modal-dot w-1.5 h-1.5 rounded-full bg-primary";
+                                    } else {
+                                        dot.className = "modal-dot w-1.5 h-1.5 rounded-full bg-white/30";
+                                    }
+                                });
+                            }
+                        }, 100);
+                    }
+                }, 500);
+
+                // Open overlay transitions
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                setTimeout(() => {
+                    modal.classList.remove('opacity-0');
+                    modal.classList.add('opacity-100');
+                    console.log("Modal classes updated to visible:", modal.className);
+                }, 10);
+            } catch (err) {
+                console.error("Error opening modal inside click listener:", err);
+            }
+        });
+    });
+
+    // Close handler
+    function closeModal() {
+        console.log("closeModal triggered");
+        if (modalSlideshowInterval) {
+            clearInterval(modalSlideshowInterval);
+            modalSlideshowInterval = null;
+        }
+
+        modal.classList.remove('opacity-100');
+        modal.classList.add('opacity-0');
+        setTimeout(() => {
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
+
+            // Reset all card images to original thumbnails
+            document.querySelectorAll('[data-project-id]').forEach(card => {
+                const id = card.getAttribute('data-project-id');
+                const project = PROJECTS_DATA[id];
+                const img = card.querySelector('.project-card-img');
+                if (project && img) {
+                    img.src = project.images[0];
+                }
+            });
+        }, 300);
+    }
+
+    closeBtn.addEventListener('click', closeModal);
+
+    // Close modal on click outside card
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            closeModal();
+        }
+    });
+
+    // Escape listener
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+            closeModal();
+        }
+    });
 }
 
 // Fire preloader
 preloadFrames();
+

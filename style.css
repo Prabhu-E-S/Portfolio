@@ -203,3 +203,48 @@ body {
     object-fit: cover;
     width: 100%;
 }
+
+/* -------------------------------------------------------------
+ * PROJECT MODAL SLIDESHOW
+ * ------------------------------------------------------------- */
+#modal-slideshow-img {
+    transition: opacity 0.2s ease-in-out;
+}
+
+.modal-dot {
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* -------------------------------------------------------------
+ * PROJECT MODAL OVERLAY
+ * ------------------------------------------------------------- */
+#project-modal {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+#project-modal .glass-panel {
+    background: rgba(19, 19, 23, 0.75);
+    backdrop-filter: blur(32px);
+    -webkit-backdrop-filter: blur(32px);
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+#project-modal::-webkit-scrollbar {
+    width: 4px;
+}
+
+#project-modal .overflow-y-auto::-webkit-scrollbar {
+    width: 4px;
+}
+
+#project-modal .overflow-y-auto::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 2px;
+}
+
+/* Scrollable right panel */
+#project-modal .overflow-y-auto {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+}
