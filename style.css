@@ -248,3 +248,24 @@ body {
     scrollbar-width: thin;
     scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
 }
+
+/* -------------------------------------------------------------
+ * CARD HOVER POP-OUT EFFECT
+ * ------------------------------------------------------------- */
+[data-project-id]:hover {
+    overflow: visible !important;
+}
+
+[data-project-id] .h-48.relative {
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), filter 0.4s ease;
+}
+
+[data-project-id]:hover .h-48.relative {
+    transform: translateY(-28px) scale(1.12);
+    filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.8)) drop-shadow(0 0 5px rgba(233, 239, 240, 0.4));
+    z-index: 20;
+}
+
+.card-slideshow-track {
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
