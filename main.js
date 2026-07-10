@@ -34,7 +34,7 @@ const PROJECTS_DATA = {
         description: "Built an intelligent pipeline for analyzing NASA TESS light curves using Box Least Squares (BLS) and XGBoost. The system automatically detects transit signals, extracts astrophysical parameters, classifies candidates, and generates confidence-aware scientific reports with interactive visualizations.",
         explanation: "Developed an end-to-end AI-assisted pipeline for detecting and classifying exoplanet transit signals from NASA TESS light curves. The system processes raw FITS files, applies Box Least Squares (BLS) to identify periodic transits, extracts astrophysical features, retrieves stellar metadata from the TESS Input Catalog, and classifies signals using an XGBoost model trained on NASA TOI datasets. It generates scientifically interpretable outputs including orbital period, transit depth, transit duration, signal-to-noise ratio, confidence scores, and interactive visualizations, providing an automated workflow for exoplanet candidate analysis.",
         images: [
-            "/images/Project%202/1.jpg",
+            "/images/Project%202/1.png",
             "/images/Project%202/2.png",
             "/images/Project%202/3.png"
         ],
@@ -49,7 +49,8 @@ const PROJECTS_DATA = {
         images: [
             "/images/Project%203/1.png",
             "/images/Project%203/2.png",
-            "/images/Project%203/3.png"
+            "/images/Project%203/3.png",
+            "/images/Project%203/4.png"
         ],
         githubUrl: "https://github.com/Prabhu-E-S/Carbon-FootPrint",
         tags: ["Next.js 15", "TailwindCSS", "TypeScript", "SQLite"]
@@ -60,7 +61,7 @@ const PROJECTS_DATA = {
         description: "Track your carbon footprint, complete eco challenges, and receive AI-powered sustainability guidance.",
         explanation: "Developed a 3-DOF robotic manipulator simulation as part of a robotics internship under BSERC (in collaboration with ISRO). The manipulator was virtually modeled in MATLAB Simulink (Simscape Multibody), while Python was used to implement Denavit–Hartenberg (DH) based Forward and Inverse Kinematics. A numerical Jacobian-based inverse kinematics solver achieved sub-millimeter end-effector accuracy (~0.13 mm). The project also included a pick-and-place simulation using cubic trajectory planning, producing smooth joint motion and 3D trajectory visualization. This project strengthened my understanding of robotic kinematics, trajectory generation, and simulation-driven robotic control.",
         images: [
-            "/images/Project%204/1.jpg",
+            "/images/Project%204/1.png",
             "/images/Project%204/2.png",
             "/images/Project%204/3.png"
         ],
