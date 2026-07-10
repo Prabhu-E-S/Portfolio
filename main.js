@@ -275,6 +275,9 @@ function initInteractivity() {
 
     // Initialize Modal popup window integration
     initProjectModal();
+
+    // Initialize Project filter categories
+    initProjectFilters();
 }
 
 // 6. Project Cards Hover Slideshow (0.3s cycle)
@@ -507,6 +510,70 @@ function initProjectModal() {
         if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
             closeModal();
         }
+    });
+}
+
+// 8. Project Filtering Logic (All, AI/ML, Web Dev, Robotics)
+function initProjectFilters() {
+    const filterButtons = document.querySelectorAll('#projects .tech-chip');
+    const projectCards = document.querySelectorAll('[data-project-id]');
+
+    filterButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            // Update active styling of buttons
+            filterButtons.forEach(btn => {
+                btn.classList.remove('text-primary', '!bg-primary/20', '!border-primary');
+                btn.classList.add('text-on-surface-variant');
+            });
+            button.classList.add('text-primary', '!bg-primary/20', '!border-primary');
+            button.classList.remove('text-on-surface-variant');
+
+            const filter = button.textContent.trim().replace(/\s+/g, ' ').toLowerCase();
+
+            projectCards.forEach(card => {
+                const id = card.getAttribute('data-project-id');
+                const project = PROJECTS_DATA[id];
+
+                // Get tags from DOM spans
+                const domTags = Array.from(card.querySelectorAll('.text-xs.font-label-mono, .font-label-mono'))
+                    .map(el => el.textContent.trim().replace(/\s+/g, ' ').toLowerCase());
+
+                // Get tags from PROJECTS_DATA
+                const dataTags = (project && project.tags)
+                    ? project.tags.map(t => t.toLowerCase())
+                    : [];
+
+                const combinedTags = [...new Set([...domTags, ...dataTags])];
+
+                const isAll = filter === 'all';
+                const hasTag = combinedTags.includes(filter);
+
+                if (isAll || hasTag) {
+                    // Show card with GSAP
+                    gsap.to(card, {
+                        opacity: 1,
+                        scale: 1,
+                        duration: 0.4,
+                        ease: 'power2.out',
+                        clearProps: 'transform,opacity',
+                        onStart: () => {
+                            card.style.display = '';
+                        }
+                    });
+                } else {
+                    // Hide card with GSAP
+                    gsap.to(card, {
+                        opacity: 0,
+                        scale: 0.9,
+                        duration: 0.3,
+                        ease: 'power2.in',
+                        onComplete: () => {
+                            card.style.display = 'none';
+                        }
+                    });
+                }
+            });
+        });
     });
 }
 
