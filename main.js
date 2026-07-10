@@ -278,6 +278,9 @@ function initInteractivity() {
 
     // Initialize Project filter categories
     initProjectFilters();
+
+    // Initialize PCB Background Canvas Animations
+    initPCBBg();
 }
 
 // 6. Project Cards Hover Slideshow (0.3s cycle)
@@ -575,6 +578,375 @@ function initProjectFilters() {
             });
         });
     });
+}
+
+// 9. Calm & Premium PCB Background Canvas with Glowing Sparks & Floating Particles
+function initPCBBg() {
+    const canvas = document.getElementById('pcb-canvas');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    let width = window.innerWidth;
+    let height = window.innerHeight;
+    canvas.width = width;
+    canvas.height = height;
+
+    let traces = [];
+    let activePulses = [];
+    let particles = [];
+
+    // State for mouse parallax
+    let targetParallaxX = 0;
+    let targetParallaxY = 0;
+    let currentParallaxX = 0;
+    let currentParallaxY = 0;
+
+    // Track mouse coordinate for subtle parallax depth
+    window.addEventListener('mousemove', (e) => {
+        targetParallaxX = ((e.clientX - window.innerWidth / 2) / (window.innerWidth / 2)) * 12;
+        targetParallaxY = ((e.clientY - window.innerHeight / 2) / (window.innerHeight / 2)) * 12;
+    });
+
+    // Helper: calculate distance between two points
+    function dist(p1, p2) {
+        return Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2);
+    }
+
+    // Generate PCB Traces procedurally
+    function generatePCBLayout() {
+        traces = [];
+        const docHeight = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight, 4000);
+
+        // Number of primary trunk trace pathways
+        const numTrunkLines = 25;
+
+        for (let i = 0; i < numTrunkLines; i++) {
+            let path = [];
+            // Random start point across document height
+            let startX = Math.random() * (width - 100) + 50;
+            let startY = Math.random() * (docHeight - 300) + 100;
+            path.push({ x: startX, y: startY });
+
+            let numSegments = Math.floor(Math.random() * 3) + 3; // 3 to 5 segments
+            let currX = startX;
+            let currY = startY;
+
+            for (let j = 0; j < numSegments; j++) {
+                let segmentLength = Math.random() * 150 + 80; // 80px to 230px
+
+                // Directions: 0-Right, 90-Down, 45-DownRight, 135-DownLeft, 180-Left
+                const dirs = [0, 45, 90, 135, 180];
+                let dir = dirs[Math.floor(Math.random() * dirs.length)];
+
+                if (dir === 0) {
+                    currX += segmentLength;
+                } else if (dir === 45) {
+                    currX += segmentLength * 0.707;
+                    currY += segmentLength * 0.707;
+                } else if (dir === 135) {
+                    currX -= segmentLength * 0.707;
+                    currY += segmentLength * 0.707;
+                } else if (dir === 90) {
+                    currY += segmentLength;
+                } else if (dir === 180) {
+                    currX -= segmentLength;
+                }
+
+                // Constrain within bounds
+                currX = Math.max(50, Math.min(width - 50, currX));
+
+                path.push({ x: currX, y: currY });
+            }
+
+            traces.push({
+                points: path,
+                branches: [] // We'll compute branches next
+            });
+        }
+
+        // Procedurally build branches at circuit intersections
+        // If a vertex in trace A is close to a vertex in trace B, register a branching pointer
+        for (let i = 0; i < traces.length; i++) {
+            for (let j = 0; j < traces.length; j++) {
+                if (i === j) continue;
+
+                // Compare points
+                for (let pi = 1; pi < traces[i].points.length - 1; pi++) {
+                    const ptA = traces[i].points[pi];
+
+                    for (let pj = 0; pj < traces[j].points.length; pj++) {
+                        const ptB = traces[j].points[pj];
+
+                        if (dist(ptA, ptB) < 15) {
+                            // Snap points to exact match to look clean
+                            ptB.x = ptA.x;
+                            ptB.y = ptA.y;
+
+                            traces[i].branches.push({
+                                pointIndex: pi,
+                                targetTraceIndex: j,
+                                targetPointIndex: pj
+                            });
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Generate Floating ambient particles
+    function generateAmbientParticles() {
+        particles = [];
+        const numParticles = 75;
+        for (let i = 0; i < numParticles; i++) {
+            particles.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                vx: (Math.random() - 0.5) * 0.2, // neutral drift
+                vy: (Math.random() - 0.5) * 0.2, // neutral drift
+                radius: Math.random() * 2 + 1, // 1px to 3px
+                phase: Math.random() * Math.PI * 2,
+                fadeSpeed: Math.random() * 0.01 + 0.005,
+                opacity: Math.random()
+            });
+        }
+    }
+
+    // Seed initial pulses
+    function spawnPulse(forceTraceIdx = null) {
+        if (traces.length === 0) return;
+        const colorPalette = ['#00E5FF', '#3B82F6', '#7C3AED', '#00E5FF'];
+
+        let pathIdx = forceTraceIdx !== null ? forceTraceIdx : Math.floor(Math.random() * traces.length);
+        let trace = traces[pathIdx];
+        if (!trace || trace.points.length < 2) return;
+
+        activePulses.push({
+            traceIndex: pathIdx,
+            segmentIndex: 0,
+            progress: 0.0, // 0 to 1 along segment
+            speed: Math.random() * 0.008 + 0.006, // slow, elegant motion
+            color: colorPalette[Math.floor(Math.random() * colorPalette.length)],
+            width: Math.random() * 1.0 + 1.2,
+            isBranch: forceTraceIdx !== null, // branched pulses don't branch again recursively
+            history: [] // track coordinates for gradient tail drawing
+        });
+    }
+
+    // Setup elements
+    generatePCBLayout();
+    generateAmbientParticles();
+
+    // Spawn starting pulses
+    for (let i = 0; i < 6; i++) {
+        spawnPulse();
+    }
+
+    // Resize handler
+    window.addEventListener('resize', () => {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        canvas.width = width;
+        canvas.height = height;
+        generatePCBLayout();
+        generateAmbientParticles();
+    });
+
+    // Main animation frame loop
+    function animate() {
+        requestAnimationFrame(animate);
+
+        // Smooth cursor parallax interpolation
+        currentParallaxX += (targetParallaxX - currentParallaxX) * 0.05;
+        currentParallaxY += (targetParallaxY - currentParallaxY) * 0.05;
+
+        // Clear view space
+        ctx.clearRect(0, 0, width, height);
+
+        const scrollY = window.scrollY;
+
+        // Fade in particles container as user scrolls past home hero area
+        // Fades from 0 to 1 as screen scrolls from 100px to 600px
+        const particleOpacityMult = Math.min(1, Math.max(0, (scrollY - 100) / 500));
+
+        // 1. Draw static traces faded in the background
+        ctx.shadowBlur = 0; // turn off shadow effects for traces rendering
+        ctx.beginPath();
+        traces.forEach(trace => {
+            // Frustum/viewport check: only draw paths currently on screen (or close to it)
+            let isVisible = false;
+            for (let i = 0; i < trace.points.length; i++) {
+                const drawY = trace.points[i].y - scrollY;
+                if (drawY >= -200 && drawY <= height + 200) {
+                    isVisible = true;
+                    break;
+                }
+            }
+
+            if (isVisible && trace.points.length > 0) {
+                // Apply parallax translation on draw
+                const startPtX = trace.points[0].x + currentParallaxX * 0.2;
+                const startPtY = trace.points[0].y - scrollY + currentParallaxY * 0.2;
+                ctx.moveTo(startPtX, startPtY);
+
+                for (let i = 1; i < trace.points.length; i++) {
+                    const ptX = trace.points[i].x + currentParallaxX * 0.2;
+                    const ptY = trace.points[i].y - scrollY + currentParallaxY * 0.2;
+                    ctx.lineTo(ptX, ptY);
+                }
+            }
+        });
+        ctx.strokeStyle = `rgba(165, 237, 255, 0.035)`; // very faint cyan track lines
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+
+        // 2. Animate and Render Active Current Pulses
+        // Loop backwards to allow in-flight removal
+        for (let i = activePulses.length - 1; i >= 0; i--) {
+            let pulse = activePulses[i];
+            let trace = traces[pulse.traceIndex];
+
+            // If trace disappeared or segment index invalid
+            if (!trace || pulse.segmentIndex >= trace.points.length - 1) {
+                activePulses.splice(i, 1);
+                if (activePulses.length < 8) spawnPulse();
+                continue;
+            }
+
+            let pStart = trace.points[pulse.segmentIndex];
+            let pEnd = trace.points[pulse.segmentIndex + 1];
+
+            // Calculate current exact coordinate
+            let currentX = pStart.x + (pEnd.x - pStart.x) * pulse.progress;
+            let currentY = pStart.y + (pEnd.y - pStart.y) * pulse.progress;
+
+            // Apply parallax coordinates on draw
+            let drawX = currentX + currentParallaxX * 0.2;
+            let drawY = currentY - scrollY + currentParallaxY * 0.2;
+
+            // History for trail glow
+            pulse.history.push({ x: drawX, y: drawY });
+            if (pulse.history.length > 12) {
+                pulse.history.shift();
+            }
+
+            // Draw glowing tail
+            if (drawY >= -50 && drawY <= height + 50) {
+                ctx.beginPath();
+                if (pulse.history.length > 1) {
+                    ctx.moveTo(pulse.history[0].x, pulse.history[0].y);
+                    for (let h = 1; h < pulse.history.length; h++) {
+                        ctx.lineTo(pulse.history[h].x, pulse.history[h].y);
+                    }
+                }
+
+                // Gradient stroke matching pulse head color fading to tail black opacity
+                const gradient = ctx.createLinearGradient(
+                    pulse.history[0].x, pulse.history[0].y,
+                    drawX, drawY
+                );
+                gradient.addColorStop(0, 'rgba(0, 0, 0, 0)');
+                gradient.addColorStop(0.3, pulse.color + '22'); // 13% opacity
+                gradient.addColorStop(0.7, pulse.color + '88'); // 53% opacity
+                gradient.addColorStop(1, pulse.color);           // 100% opacity
+
+                ctx.strokeStyle = gradient;
+                ctx.lineWidth = pulse.width;
+                ctx.stroke();
+
+                // Spark spark head circle
+                ctx.beginPath();
+                ctx.arc(drawX, drawY, pulse.width + 0.8, 0, Math.PI * 2);
+                ctx.fillStyle = '#FFFFFF'; // bright header core
+
+                // Add soft neon drop shadow glow during spark render
+                ctx.shadowColor = pulse.color;
+                ctx.shadowBlur = 12;
+                ctx.fill();
+                ctx.shadowBlur = 0; // reset shadow immediately to preserve performance
+            }
+
+            // Advance progress
+            pulse.progress += pulse.speed;
+
+            // Handle segment transitions / completions
+            if (pulse.progress >= 1.0) {
+                pulse.progress = 0.0;
+                pulse.segmentIndex++;
+
+                // Intersection Branching
+                // Trigger branching probability when transition occurs at trace intersections
+                if (!pulse.isBranch && trace.branches && trace.branches.length > 0) {
+                    trace.branches.forEach(branch => {
+                        if (branch.pointIndex === pulse.segmentIndex && Math.random() < 0.25) {
+                            // Check if branch source trace exists and spawn branch spark
+                            const bTrace = traces[branch.targetTraceIndex];
+                            if (bTrace && branch.targetPointIndex < bTrace.points.length - 1) {
+                                // Spawn a short branch spark
+                                activePulses.push({
+                                    traceIndex: branch.targetTraceIndex,
+                                    segmentIndex: branch.targetPointIndex,
+                                    progress: 0.0,
+                                    speed: pulse.speed * 1.1, // slightly faster branching motion
+                                    color: pulse.color,
+                                    width: pulse.width * 0.9, // slightly thinner branching line
+                                    isBranch: true, // prevent branch loops
+                                    history: []
+                                });
+                            }
+                        }
+                    });
+                }
+
+                // If path completely finished
+                if (pulse.segmentIndex >= trace.points.length - 1) {
+                    activePulses.splice(i, 1);
+                    if (activePulses.length < 8) spawnPulse();
+                }
+            }
+        }
+
+        // Spawning natural pulses over time
+        if (activePulses.length < 8 && Math.random() < 0.008) {
+            spawnPulse();
+        }
+
+        // 3. Render and update Floating Ambient Particles
+        if (particleOpacityMult > 0.01) {
+            particles.forEach(p => {
+                // Update position
+                p.x += p.vx;
+                p.y += p.vy;
+                p.phase += p.fadeSpeed;
+
+                // Wrap around edges
+                if (p.x < 0) p.x = width;
+                if (p.x > width) p.x = 0;
+                if (p.y < 0) p.y = height;
+                if (p.y > height) p.y = 0;
+
+                // Naturally oscillate opacity
+                const oscOpacity = (Math.sin(p.phase) + 1) / 2 * p.radius * 0.2;
+                const finalOpacity = oscOpacity * particleOpacityMult;
+
+                if (finalOpacity > 0.01) {
+                    // Parallax depth applied (different depth coefficient than traces)
+                    const drawPx = p.x + currentParallaxX * p.radius * 0.15;
+                    const drawPy = p.y + currentParallaxY * p.radius * 0.15;
+
+                    ctx.beginPath();
+                    ctx.arc(drawPx, drawPy, p.radius, 0, Math.PI * 2);
+
+                    // Draw soft cyan-blue sparks
+                    ctx.fillStyle = `rgba(165, 229, 255, ${finalOpacity})`;
+                    ctx.fill();
+                }
+            });
+        }
+    }
+
+    // Launch loop
+    animate();
 }
 
 // Fire preloader

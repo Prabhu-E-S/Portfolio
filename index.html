@@ -208,6 +208,9 @@
     <!-- Custom Cursor -->
     <div class="custom-cursor" id="custom-cursor"></div>
 
+    <!-- PCB Canvas Background -->
+    <canvas id="pcb-canvas" class="fixed inset-0 w-full h-full pointer-events-none z-0"></canvas>
+
     <!-- Preloader -->
     <div id="preloader" class="preloader">
         <div class="preloader-content">
@@ -281,7 +284,7 @@
         </section>
 
         <!-- Content Area below pinned canvas -->
-        <div class="relative bg-[#0B0B0F] pt-20">
+        <div class="relative bg-transparent pt-20">
             <!-- Ambient Background Glows -->
             <div class="ambient-glow top-0 left-[-200px]"></div>
             <div class="ambient-glow top-[40%] right-[-200px]"></div>
