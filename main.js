@@ -67,6 +67,21 @@ const PROJECTS_DATA = {
         ],
         githubUrl: "https://github.com/Prabhu-E-S/Robotic-Manipulator",
         tags: ["MATLAB Simulink", "Simscape Multibody", "Python", "Forward Kinematics", "Jacobian Inverse Solver"]
+    },
+
+    "traffic-demand": {
+        title: "AI Traffic Demand Prediction System",
+        subtitle: "End-to-end traffic demand prediction and analytics.",
+        description: "An end-to-end machine learning system designed to predict 24-hour traffic demand and identify peak congestion periods",
+        explanation: "A production-grade, full-stack machine learning system designed to accurately forecast 24-hour traffic demand and identify peak congestion hours. Built with a FastAPI backend and a Next.js dashboard, it utilizes an optimized stacking ensemble of advanced gradient boosting models while incorporating SHAP values for highly transparent, explainable AI predictions.",
+        images: [
+            "/images/Project%205/1.png",
+            "/images/Project%205/2.png",
+            "/images/Project%205/3.png",
+            "/images/Project%205/4.png"
+        ],
+        githubUrl: "https://github.com/Prabhu-E-S/Traffic-Demand-Prediction",
+        tags: ["Python", "CatBoost", "LightGBM", "XGBoost", "Pandas", "Scikit-Learn", "SHAP", "FastAPI"]
     }
 };
 
